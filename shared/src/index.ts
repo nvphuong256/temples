@@ -2,3 +2,8 @@ export * from "./messages.js";
 export * from "./constants.js";
 export * from "./names.js";
 export * from "./companion.js";
+export * from "./palette/characters.js";
+export * from "./palette/architecture.js";
+export * from "./palette/nature.js";
+export * from "./palette/sky.js";
+export * from "./palette/fx.js";

@@ -4,7 +4,7 @@
 import { useEffect, useRef } from "react";
 import { COMPANION_SEED_LINES, pickCompanionLine, type CompanionState } from "@cvo/shared";
 import { TIEU_AN } from "../scene/layout";
-import { TIEU_AN_ID, avatars, player, setPose } from "../state/runtime";
+import { TIEU_AN_ID, avatars, debug, player, setPose } from "../state/runtime";
 import { companionSay, useUi } from "../state/store";
 
 const GUIDE_AFTER_MS = 30_000;
@@ -38,6 +38,7 @@ export function useCompanion() {
     let lastMeditate = performance.now();
 
     const id = setInterval(() => {
+      if (debug.freezeNpc) return;
       const now = performance.now();
       const ui = useUi.getState();
       if (

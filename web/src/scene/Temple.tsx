@@ -15,11 +15,21 @@ import { Player } from "./Player";
 import { Smoke } from "./Smoke";
 import { TieuAn } from "./TieuAn";
 import { Walls } from "./Walls";
+import { Sky } from "./env/Sky";
+import { WeatherFx } from "./env/WeatherFx";
+import { WindSystem } from "./env/WindSystem";
+import { RitualFx } from "./fx/RitualFx";
+import { FallingLeaves } from "./nature/FallingLeaves";
+import { GardenDecor } from "./nature/GardenDecor";
 
 export function Temple({ shadows }: { shadows: boolean }) {
   return (
     <>
+      {/* Phiên 4 — bầu trời, thời tiết, gió */}
+      <WindSystem />
       <Lighting shadows={shadows} />
+      <Sky />
+      <WeatherFx />
       <Ground />
       <Columns />
       <Gate />
@@ -32,6 +42,12 @@ export function Temple({ shadows }: { shadows: boolean }) {
       <BellTower />
       <Lanterns />
       <Walls />
+      {/* Phiên 3 — thiên nhiên & sân vườn */}
+      <GardenDecor />
+      <FallingLeaves />
+      {/* Phiên 5 — hương khói & hiệu ứng nghi lễ */}
+      <RitualFx />
+      {/* Phiên 1 — nhân vật */}
       <TieuAn />
       <Player />
       <AvatarAnimator />

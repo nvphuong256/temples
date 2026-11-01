@@ -26,6 +26,20 @@ export default tseslint.config(
     },
   },
   {
+    // Script công cụ (Node CommonJS, chạy Playwright).
+    files: ["scripts/**/*.cjs"],
+    languageOptions: {
+      sourceType: "commonjs",
+      globals: {
+        require: "readonly",
+        process: "readonly",
+        console: "readonly",
+        document: "readonly",
+      },
+    },
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
+  {
     files: ["web/src/**/*.{ts,tsx}"],
     plugins: { "react-hooks": reactHooks },
     rules: {

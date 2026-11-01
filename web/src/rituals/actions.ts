@@ -7,9 +7,11 @@ import {
   incenseSpot,
   nearestFreeCushion,
   BURNER,
+  BELL_TOWER,
   type XZ,
 } from "../scene/layout";
 import { PLAYER_ID, TIEU_AN_ID, avatars, player, setPose } from "../state/runtime";
+import { emitFx } from "../scene/fx/bus";
 import { toast, useUi } from "../state/store";
 import * as rules from "./rules";
 
@@ -50,6 +52,7 @@ export function doIncense() {
     const r = rules.incense(s.progress);
     s.set({ progress: r.next, sticks: Math.min(MAX_STICKS, s.sticks + 1) });
     playBell(false);
+    emitFx({ kind: "incense", x: BURNER.x, z: BURNER.z, gained: r.gained });
     toast(`Bạn đã thắp một nén hương. Công đức +${r.gained}`);
   });
 }
@@ -82,6 +85,7 @@ export function doBow() {
         const st = useUi.getState();
         const r = rules.bow(st.progress);
         st.set({ progress: r.next });
+        emitFx({ kind: "bow", ...here(), gained: r.gained });
         if (r.gained) toast(`Đã lễ ${r.next.bows} lạy. Công đức +${r.gained}`);
       };
     toast("Đang lễ Phật · bấm lại để dừng");
@@ -91,7 +95,9 @@ export function doBow() {
 export function doMo() {
   playMo();
   const s = useUi.getState();
-  s.set({ progress: rules.mo(s.progress, Math.random()).next });
+  const r = rules.mo(s.progress, Math.random());
+  s.set({ progress: r.next });
+  emitFx({ kind: "mo", ...here(), gained: r.gained });
 }
 
 export function openBeads() {
@@ -109,6 +115,7 @@ export function beadStep(): boolean {
   s.set({ progress: r.next });
   if (r.gained) {
     playBell(false);
+    emitFx({ kind: "beadsRound", ...here(), gained: r.gained });
     toast(`Trọn một tràng 108 hạt. Công đức +${r.gained}`);
   }
   return true;
@@ -121,6 +128,7 @@ export function resetBeads() {
 
 export function doGreet() {
   setPose(PLAYER_ID, "greet");
+  emitFx({ kind: "greet", ...here(), gained: 0 });
   const p = here();
   const nearTieuAn = Math.hypot(p.x - TIEU_AN.x, p.z - TIEU_AN.z) < GREET_RANGE_M;
   if (!nearTieuAn) {
@@ -144,6 +152,7 @@ export function doBell() {
   }
   s.set({ lastBellAt: now });
   playBell(true);
+  emitFx({ kind: "bell", x: BELL_TOWER.x, z: BELL_TOWER.z, gained: 0 });
   toast("Chuông ngân khắp chùa");
 }
 

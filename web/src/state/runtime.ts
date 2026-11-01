@@ -43,3 +43,6 @@ export function setPose(id: string, pose: AvatarPose) {
 
 export const PLAYER_ID = "me";
 export const TIEU_AN_ID = "tieuan";
+
+/** Cờ gỡ lỗi cho script chụp ảnh (scripts/shot.cjs): đóng băng hành vi NPC để ép tư thế. */
+export const debug = { freezeNpc: false };

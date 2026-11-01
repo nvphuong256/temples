@@ -1,0 +1,20 @@
+// Bảng màu chibi — THIÊN NHIÊN & SÂN VƯỜN (phiên 3). Chỉ phiên 3 sửa file này. Xem docs/06-chibi-plan.md.
+export const CHIBI_NATURE = {
+  grass: "#7DB04B",
+  grassDark: "#5C8F37",
+  grassTip: "#A9CF62",
+  leaf: "#4E9A45",
+  leafLight: "#7CC25A",
+  leafDark: "#356F33",
+  trunk: "#6B4630",
+  water: "#4FB3C4",
+  waterDeep: "#2F7F99",
+  lotus: "#F28DB0",
+  lotusCenter: "#F6D46B",
+  lilyPad: "#5FA84A",
+  stone: "#A9A397",
+  flowerYellow: "#F7D35C",
+  flowerWhite: "#FFF6E8",
+  koi: "#F07A3A",
+  brickYard: "#C9774A",
+} as const;
