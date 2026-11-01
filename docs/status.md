@@ -27,6 +27,10 @@ Kế hoạch, phong cách, quyền sở hữu file: `docs/06-chibi-plan.md`. N�
 Đã ghép vào `claude/pensive-darwin-w4fnhe` theo thứ tự 4 → 2 → 3 → 5 → 1 (01/11): chỉ xung đột docs (danh sách vật thể) và chú thích `scripts/shot.cjs`; typecheck, lint, 76 test, build xanh (361 KB gzip); chạy thử ban ngày không lỗi console.
 Sửa sau ghép: camera va chạm mái (tia từ đầu người chơi, mái đăng ký `camBlockers`; không còn chui dưới mái hiên tam quan/chính điện); câu đối màn cổng không còn chồng ô chọn tên; bong bóng Tiểu An lên trên cụm nút ở màn ≤ 1040px, gợi ý phím dời góc trái dưới; tán đa/tre đổi sang xanh ô liu trầm (bỏ phát sáng tán), vỏ đa nâu xám. Còn lại: chưa kiểm tra đêm, mưa phùn, mobile.
 
+## Bản build tổng hợp (01/11)
+- Nhánh `claude/eager-noether-i0civq` = toàn bộ `pensive-darwin` (5 nhánh chibi + sửa lỗi); typecheck, lint, 76 test, build xanh (361 KB gzip); chạy thử bản build cảnh đêm không lỗi console.
+- Server: thêm `postinstall: prisma generate` (trước đó build hỏng khi cài mới vì thiếu Prisma client); sửa `start` → `dist/src/index.js`. Server vẫn là khung trống đến tuần 3.
+
 ## Việc kế tiếp
 1. Tuần 2: QA trên điện thoại thật (Slow 4G + CPU 4x), font tự host trong `web/public/fonts`, tinh chỉnh avatar người chơi.
 2. Tuần 3: TempleRoom theo `docs/03-room-protocol.md`; chuyển luật công đức sang server.
