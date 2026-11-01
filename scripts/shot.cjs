@@ -70,7 +70,8 @@ const o = JSON.parse(process.argv[2] || "{}");
         .querySelectorAll(".hud,#hint,#companion,#toast,#joy,#leave")
         .forEach((e) => (e.style.display = "none")),
     );
-  await page.screenshot({ path: o.out ?? "shot.png" });
+  // page.clock (hour/night) làm SwiftShader chậm hơn — cho ảnh chụp thêm thời gian.
+  await page.screenshot({ path: o.out ?? "shot.png", timeout: 120_000 });
   await browser.close();
   console.log(errors.length ? "ERRORS:\n" + errors.join("\n") : "ok, no page errors");
 })();
