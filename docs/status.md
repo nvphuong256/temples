@@ -31,6 +31,11 @@ Sửa sau ghép: camera va chạm mái (tia từ đầu người chơi, mái đ�
 - Nhánh `claude/eager-noether-i0civq` = toàn bộ `pensive-darwin` (5 nhánh chibi + sửa lỗi); typecheck, lint, 76 test, build xanh (361 KB gzip); chạy thử bản build cảnh đêm không lỗi console.
 - Server: thêm `postinstall: prisma generate` (trước đó build hỏng khi cài mới vì thiếu Prisma client); sửa `start` → `dist/src/index.js`. Server vẫn là khung trống đến tuần 3.
 
+## Rà soát giao diện & đề xuất độ thật (01/11)
+- `docs/review/07-de-xuat-do-that.md` (+ ảnh `docs/review/img/`): 54 mục theo hạng mục, ưu tiên P1–P3, lộ trình 4 đợt; không cần thêm package, tải dự kiến ≤ 5–6 MB.
+- Nguyên nhân chính trông "nhựa": không envMap/IBL, không AO/bóng tiếp xúc, vật liệu chỉ có màu + emissive ăn gian, màu không lão hóa, dáng kiến trúc Trung Hoa hơn Bắc Bộ.
+- Cần Phương chốt: A giữ chibi + nâng render · **B (khuyến nghị) nhân vật chibi + cảnh bán thực Bắc Bộ** · C thực toàn phần. Đợt 1 (render) làm được ngay với mọi hướng.
+
 ## Việc kế tiếp
 1. Tuần 2: QA trên điện thoại thật (Slow 4G + CPU 4x), font tự host trong `web/public/fonts`, tinh chỉnh avatar người chơi.
 2. Tuần 3: TempleRoom theo `docs/03-room-protocol.md`; chuyển luật công đức sang server.
