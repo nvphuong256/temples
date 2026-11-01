@@ -87,7 +87,7 @@ export function resetPlayer() {
   }
   player.walkTo = null;
   player.onArrive = null;
-  cam.yaw = Math.PI;
+  cam.yaw = 0;
   cam.pitch = 0.42;
   cam.dist = 14;
 }

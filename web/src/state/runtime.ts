@@ -22,7 +22,7 @@ export const input = {
   joyY: 0,
 };
 
-export const cam = { yaw: Math.PI, pitch: 0.42, dist: 14 };
+export const cam = { yaw: 0, pitch: 0.42, dist: 14 };
 
 export const player = {
   group: null as Group | null,

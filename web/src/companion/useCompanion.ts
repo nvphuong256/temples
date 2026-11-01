@@ -8,7 +8,7 @@ import { TIEU_AN_ID, avatars, player, setPose } from "../state/runtime";
 import { companionSay, useUi } from "../state/store";
 
 const GUIDE_AFTER_MS = 30_000;
-const MEDITATE_FAR_M = 16;
+const MEDITATE_FAR_M = 22;
 const MEDITATE_EVERY_MS = 120_000;
 
 export function sayLine(state: CompanionState) {

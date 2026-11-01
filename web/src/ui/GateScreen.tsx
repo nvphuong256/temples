@@ -1,6 +1,7 @@
 // Màn hình cổng tam quan: chọn nhân vật + tên ngẫu nhiên kiểu Việt, rồi "Vào chùa".
 import { DEFAULT_SETTINGS, GUEST_NAMES } from "@cvo/shared";
 import { initAudio } from "../audio/synth";
+import { cam } from "../state/runtime";
 import { toast, randomGuestName, useUi, type AvatarKind } from "../state/store";
 
 export function GateScreen() {
@@ -9,6 +10,10 @@ export function GateScreen() {
 
   const enter = () => {
     initAudio();
+    // Camera ngoài cổng xoay chậm; vào chùa thì quay về phía tam quan.
+    cam.yaw = 0;
+    cam.pitch = 0.42;
+    cam.dist = 11;
     set({ phase: "temple", visits: useUi.getState().visits + 1 });
     toast("Qua cổng tam quan. Hãy thắp một nén hương ở sân trước.");
   };
