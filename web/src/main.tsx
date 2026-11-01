@@ -1,2 +1,12 @@
-// Khung trống (phase 0). Tuần 1: chuyển docs/prototype/chua-viet-online.html sang React Three Fiber.
-export {};
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { App } from "./App";
+import "./ui/styles.css";
+
+const root = document.getElementById("root");
+if (root)
+  createRoot(root).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );

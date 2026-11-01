@@ -1,0 +1,425 @@
+/* Sơn mài: nâu gụ + vàng + đỏ son. Một canvas 3D toàn màn hình, HUD nổi phía trên. Port từ nguyên mẫu. */
+:root {
+  --lacquer: #2a1810;
+  --lacquer-2: #3b241a;
+  --gold: #d9a441;
+  --gold-2: #f0cb7a;
+  --son: #a4262c;
+  --paper: #f3e7cf;
+  --ink: #f7ead2;
+  --ink-2: #c9b38f;
+  --display: "Noto Serif Display", Georgia, "Times New Roman", serif;
+  --body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--lacquer);
+  color: var(--ink);
+  font-family: var(--body);
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+#c {
+  position: fixed !important;
+  inset: 0;
+}
+.hud {
+  position: fixed;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.hud > * {
+  pointer-events: auto;
+}
+#top {
+  top: 0;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.chip {
+  background: rgba(42, 24, 16, 0.82);
+  border: 1px solid rgba(217, 164, 65, 0.45);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font: 12.5px var(--body);
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  backdrop-filter: blur(6px);
+}
+.chip b {
+  color: var(--gold-2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.chip.name {
+  font-family: var(--display);
+  font-size: 14px;
+}
+button.chip {
+  cursor: pointer;
+}
+.chip.leave {
+  margin-left: auto;
+}
+#bottom {
+  bottom: 0;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+#actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-width: 360px;
+}
+.act {
+  background: rgba(42, 24, 16, 0.86);
+  border: 1px solid rgba(217, 164, 65, 0.5);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 10px 8px;
+  font: 500 12.5px var(--body);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 88px;
+  backdrop-filter: blur(6px);
+}
+.act:focus-visible,
+.btn:focus-visible,
+.chip:focus-visible {
+  outline: 2px solid var(--gold-2);
+  outline-offset: 2px;
+}
+.act:active {
+  transform: translateY(1px);
+}
+.act .k {
+  font-size: 10.5px;
+  color: var(--ink-2);
+  letter-spacing: 0.04em;
+}
+.act.on {
+  background: var(--son);
+  border-color: var(--gold);
+}
+.act svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--gold-2);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.act.toggle {
+  display: none;
+}
+#joy {
+  position: fixed;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 1px solid rgba(217, 164, 65, 0.4);
+  background: rgba(42, 24, 16, 0.5);
+  display: none;
+  touch-action: none;
+}
+#joy i {
+  position: absolute;
+  left: 36px;
+  top: 36px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(240, 203, 122, 0.85);
+}
+#hint {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+  font-size: 11.5px;
+  color: var(--ink-2);
+  background: rgba(42, 24, 16, 0.7);
+  padding: 6px 10px;
+  border-radius: 8px;
+  pointer-events: none;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+}
+/* Mobile: joystick trái, 3 nút lớn phải + "Thêm". */
+@media (pointer: coarse) {
+  #joy {
+    display: block;
+  }
+  #hint {
+    display: none;
+  }
+  #actions {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 210px;
+  }
+  .act {
+    min-width: 92px;
+    min-height: 64px;
+    font-size: 13.5px;
+  }
+  .act .k {
+    display: none;
+  }
+  .act:not(.primary):not(.toggle) {
+    display: none;
+  }
+  #actions.more .act:not(.toggle) {
+    display: flex;
+  }
+  .act.toggle {
+    display: flex;
+  }
+}
+#toast {
+  position: fixed;
+  left: 50%;
+  top: calc(64px + env(safe-area-inset-top, 0px));
+  transform: translateX(-50%);
+  background: rgba(42, 24, 16, 0.9);
+  border: 1px solid var(--gold);
+  color: var(--gold-2);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  max-width: min(90vw, 420px);
+  text-align: center;
+  z-index: 6;
+}
+#toast.show {
+  opacity: 1;
+}
+#companion {
+  position: fixed;
+  left: 50%;
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  max-width: min(calc(100vw - 32px), 440px);
+  background: var(--paper);
+  color: var(--lacquer);
+  border: 2px solid var(--gold);
+  border-radius: 14px;
+  padding: 8px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+  z-index: 6;
+}
+#companion b {
+  font-family: var(--display);
+  color: var(--son);
+  white-space: nowrap;
+}
+#companion.show {
+  opacity: 1;
+}
+@media (pointer: coarse) {
+  #toast {
+    top: calc(132px + env(safe-area-inset-top, 0px));
+  }
+  #companion {
+    bottom: auto;
+    top: calc(180px + env(safe-area-inset-top, 0px));
+  }
+}
+/* Cổng tam quan + màn hình rời chùa */
+#gate,
+#leave {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px max(16px, env(safe-area-inset-right, 0px)) 24px
+    max(16px, env(safe-area-inset-left, 0px));
+  text-align: center;
+  z-index: 5;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+#gate {
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    rgba(74, 44, 29, 0.92) 0%,
+    rgba(42, 24, 16, 0.96) 60%
+  );
+}
+#leave {
+  background: rgba(20, 10, 6, 0.82);
+}
+.gate-roof {
+  width: min(92vw, 520px);
+  height: auto;
+}
+#gate h1 {
+  font: 500 clamp(30px, 6vw, 46px) / 1.1 var(--display);
+  margin: 0;
+  color: var(--gold-2);
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+#gate h1 small {
+  display: block;
+  font: italic 500 15px var(--display);
+  color: var(--ink-2);
+  letter-spacing: 0.3em;
+  margin-top: 6px;
+}
+#gate p,
+#leave p {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.55;
+}
+#leave h2 {
+  font: 500 30px var(--display);
+  color: var(--gold-2);
+  margin: 0;
+}
+#leave .bless {
+  color: var(--ink);
+  font-size: 16px;
+}
+#leave b {
+  color: var(--gold-2);
+}
+.row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+label.f {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  text-align: left;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+select {
+  background: var(--lacquer-2);
+  color: var(--ink);
+  border: 1px solid rgba(217, 164, 65, 0.5);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font: 14px var(--body);
+  min-width: 180px;
+}
+.btn {
+  background: var(--son);
+  color: var(--paper);
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 12px 26px;
+  font: 600 15px var(--body);
+  cursor: pointer;
+  letter-spacing: 0.02em;
+}
+.btn.ghost {
+  background: transparent;
+  color: var(--gold-2);
+}
+.couplet {
+  display: flex;
+  gap: min(10vw, 120px);
+  font: 500 13px var(--display);
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  writing-mode: vertical-rl;
+  height: 120px;
+  opacity: 0.85;
+}
+.fine {
+  font-size: 11px;
+  color: var(--ink-2);
+  opacity: 0.8;
+}
+@media (max-height: 700px) {
+  .couplet {
+    display: none;
+  }
+}
+/* Tràng hạt */
+#beads {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 10, 6, 0.86);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 4;
+  padding-inline: max(16px, env(safe-area-inset-left, 0px))
+    max(16px, env(safe-area-inset-right, 0px));
+}
+#beads h2 {
+  font: 500 22px var(--display);
+  color: var(--gold-2);
+  margin: 0;
+}
+#beadc {
+  width: min(86vw, 340px);
+  height: min(60vh, 420px);
+  touch-action: none;
+  cursor: ns-resize;
+}
+#beadn {
+  font: 600 34px var(--display);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+#beadn small {
+  font: 13px var(--body);
+  color: var(--ink-2);
+  margin-left: 6px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

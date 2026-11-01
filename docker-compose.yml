@@ -10,7 +10,11 @@ services:
   server:
     build: { context: ., dockerfile: server/Dockerfile }
     env_file: .env
-    environment: { DATABASE_URL: "postgresql://cvo:cvo@postgres:5432/cvo?schema=public", REDIS_URL: "redis://redis:6379" }
+    environment:
+      {
+        DATABASE_URL: "postgresql://cvo:cvo@postgres:5432/cvo?schema=public",
+        REDIS_URL: "redis://redis:6379",
+      }
     ports: ["2567:2567"]
     depends_on: [postgres, redis]
 volumes:

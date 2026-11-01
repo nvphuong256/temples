@@ -37,7 +37,13 @@ model MagicLink {
   @@map("magic_links")
 }
 
-enum MeritAction { incense bow mo beads bell }
+enum MeritAction {
+  incense
+  bow
+  mo
+  beads
+  bell
+}
 
 model MeritLog {
   id        String      @id @default(uuid(7))

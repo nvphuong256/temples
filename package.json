@@ -1,8 +1,13 @@
 {
   "name": "chua-viet-3d",
   "private": true,
+  "type": "module",
   "version": "0.0.1",
-  "workspaces": ["shared", "web", "server"],
+  "workspaces": [
+    "shared",
+    "web",
+    "server"
+  ],
   "scripts": {
     "dev": "concurrently -n web,server \"npm -w web run dev\" \"npm -w server run dev\"",
     "build": "npm -w shared run build && npm -w web run build && npm -w server run build",
@@ -13,12 +18,17 @@
     "test:e2e": "playwright test"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
     "concurrently": "9.2.1",
-    "typescript": "5.9.3",
     "eslint": "10.14.0",
+    "eslint-plugin-react-hooks": "7.1.1",
     "prettier": "3.9.10",
-    "vitest": "5.0.5",
-    "@playwright/test": "1.64.1"
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.0.5"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  }
 }
