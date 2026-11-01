@@ -5,7 +5,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { PLAYER_ID, avatars, cam, input, player } from "../state/runtime";
 import { useUi } from "../state/store";
-import { Avatar } from "./Avatar";
+import { ChibiAvatar } from "./chibi/ChibiAvatar";
 import { SPAWN, clampPos, groundHeight, isInHall, steerAround } from "./layout";
 
 const SPEED_YARD = 5.5;
@@ -176,7 +176,7 @@ export function Player() {
 
   return (
     <group ref={group}>
-      <Avatar id={PLAYER_ID} kind={kind} />
+      <ChibiAvatar id={PLAYER_ID} variant={kind} />
     </group>
   );
 }

@@ -1,6 +1,8 @@
 // Trạng thái thay đổi mỗi khung hình (vị trí, phím, camera, hoạt ảnh) — biến thường, không qua React/zustand.
 import type { Group, Object3D } from "three";
 import type { XZ } from "../scene/layout";
+import type { ChibiLife } from "../scene/chibi/motion";
+import type { ChibiRig } from "../scene/chibi/rig";
 
 export type AvatarPose = "idle" | "bow" | "greet" | "sit";
 
@@ -12,6 +14,12 @@ export interface AvatarAnim {
   moving: boolean;
   /** Gọi mỗi lần hoàn tất một lạy (pose "bow"). */
   onBowCycle?: () => void;
+  /** Rig chibi (scene/chibi): có thì AvatarAnimator dựng tư thế đầy đủ, không thì dùng pivot/hands như cũ. */
+  rig?: ChibiRig;
+  /** Trạng thái sống của rig (chớp mắt, trọng số tư thế, nhịp bước). */
+  life?: ChibiLife;
+  /** Quay đầu nhìn người chơi khi ở gần (Tiểu An). */
+  lookAtPlayer?: boolean;
 }
 
 export const BOW_CYCLE_S = 2.4;
