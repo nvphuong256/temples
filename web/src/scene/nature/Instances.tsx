@@ -23,12 +23,15 @@ export function Instances({
   items,
   castShadow = false,
   receiveShadow = false,
+  customDepthMaterial,
 }: {
   geometry: THREE.BufferGeometry;
   material: THREE.Material;
   items: readonly Placement[];
   castShadow?: boolean;
   receiveShadow?: boolean;
+  /** Bóng đổ theo alpha (thẻ lá). */
+  customDepthMaterial?: THREE.Material;
 }) {
   const ref = useRef<THREE.InstancedMesh>(null);
   useLayoutEffect(() => {
@@ -54,6 +57,7 @@ export function Instances({
       raycast={noRaycast}
       castShadow={castShadow}
       receiveShadow={receiveShadow}
+      customDepthMaterial={customDepthMaterial}
       frustumCulled
     />
   );

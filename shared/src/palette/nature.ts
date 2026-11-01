@@ -38,4 +38,16 @@ export const CHIBI_NATURE = {
   potRim: "#D9A441",
   fallenLeaf: "#8DBF4A",
   fallenLeafDry: "#D9B44A",
+  // Cây thật (01/11, Phương yêu cầu cây chân thực): lá đa bóng xanh đậm, vỏ đa xám, tre gai làng Bắc Bộ.
+  banyanLeaf: "#3B6A2A",
+  banyanLeafYoung: "#7FA544",
+  banyanBark: "#9C958A",
+  barkDark: "#4B443B",
+  bambooCulm: "#7E9C3F",
+  bambooCulmOld: "#B3A85A",
+  bambooWax: "#E4E6C8",
+  bambooLeafReal: "#5E8D35",
+  bambooLeafDry: "#A9A552",
+  shrubLeaf: "#3F7232",
+  shrubLeafLight: "#79A64A",
 } as const;

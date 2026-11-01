@@ -3,7 +3,14 @@
 import * as THREE from "three";
 import { CHIBI_NATURE as N } from "@cvo/shared";
 import { withWindSway, windUniforms } from "../env/wind";
-import { grassTexture, pavingTexture } from "./natureTextures";
+import {
+  bambooSprayTexture,
+  barkTexture,
+  culmTexture,
+  grassTexture,
+  leafClusterTexture,
+  pavingTexture,
+} from "./natureTextures";
 
 const std = (p: THREE.MeshStandardMaterialParameters) => new THREE.MeshStandardMaterial(p);
 const vc = (p: THREE.MeshStandardMaterialParameters = {}) =>
@@ -24,8 +31,8 @@ function noBackfaceDarken<T extends THREE.Material>(mat: T): T {
   return mat;
 }
 
-/** Rễ phụ buông: gốc trên đứng yên, đuôi dưới lắc theo gió. */
-function withHangSway<T extends THREE.Material>(mat: T, amp: number, top: number, len: number): T {
+/** Rễ phụ buông: gốc trên đứng yên, đuôi dưới lắc theo gió. Độ dọc rễ lấy từ uv.y (0 gốc → 1 đuôi). */
+function withHangSway<T extends THREE.Material>(mat: T, amp: number): T {
   mat.onBeforeCompile = (shader) => {
     shader.uniforms["uTime"] = windUniforms.uTime;
     shader.uniforms["uWind"] = windUniforms.uWind;
@@ -34,14 +41,14 @@ function withHangSway<T extends THREE.Material>(mat: T, amp: number, top: number
       shader.vertexShader.replace(
         "#include <begin_vertex>",
         `#include <begin_vertex>
-        float hangK = clamp((${top.toFixed(3)} - position.y) / ${len.toFixed(3)}, 0.0, 1.0);
+        float hangK = clamp(uv.y, 0.0, 1.0);
         hangK *= hangK * ${amp.toFixed(3)};
         float hangP = uTime * 1.5 + position.x * 0.9 + position.z * 0.7;
         transformed.x += (uWind.x + 0.12 * sin(hangP)) * hangK;
         transformed.z += (uWind.y + 0.12 * cos(hangP * 1.2)) * hangK;`,
       );
   };
-  mat.customProgramCacheKey = () => `hang-${amp}-${top}-${len}`;
+  mat.customProgramCacheKey = () => `hang-uv-${amp}`;
   return mat;
 }
 
@@ -82,6 +89,39 @@ function groundMat(map: THREE.Texture, tileM: number, offset = false) {
   });
 }
 
+const LEAF_CUTOFF = 0.45;
+const leafTex = leafClusterTexture();
+const shrubTex = leafClusterTexture(29);
+const bambooTex = bambooSprayTexture();
+const barkTex = barkTexture();
+const culmTex = culmTexture();
+
+/** Thẻ lá alpha hai mặt, đung đưa theo gió, mặt sau không tối. */
+function leafCards(map: THREE.Texture, amp: number, h: number) {
+  return noBackfaceDarken(
+    withWindSway(
+      vc({ map, alphaTest: LEAF_CUTOFF, side: THREE.DoubleSide, roughness: 0.72 }),
+      amp,
+      h,
+    ),
+  );
+}
+
+/** Bóng đổ của thẻ lá theo hình lá (không ra hình vuông). */
+const leafDepth = (map: THREE.Texture) =>
+  new THREE.MeshDepthMaterial({
+    depthPacking: THREE.RGBADepthPacking,
+    map,
+    alphaTest: LEAF_CUTOFF,
+    side: THREE.DoubleSide,
+  });
+
+export const NM_DEPTH = {
+  leaf: leafDepth(leafTex),
+  shrub: leafDepth(shrubTex),
+  bamboo: leafDepth(bambooTex),
+};
+
 export const NM = {
   /** UV tính bằng mét (planeGeometry đã nhân kích thước) → repeat = 1/ô. */
   grassGround: groundMat(grassTexture(), 6),
@@ -96,17 +136,20 @@ export const NM = {
   tuft: noBackfaceDarken(withWindSway(vc({ side: THREE.DoubleSide, roughness: 0.95 }), 0.22, 0.6)),
   flower: noBackfaceDarken(withWindSway(vc({ side: THREE.DoubleSide, roughness: 0.7 }), 0.2, 0.4)),
   pebble: vc({ roughness: 0.6 }),
-  bush: withWindSway(vc({ roughness: 0.85 }), 0.08, 1.3),
   fern: noBackfaceDarken(withWindSway(vc({ side: THREE.DoubleSide, roughness: 0.85 }), 0.22, 0.7)),
-  bamboo: noBackfaceDarken(withWindSway(vc({ side: THREE.DoubleSide, roughness: 0.7 }), 1.1, 8.5)),
+  // Cây thật (trees.ts)
+  shrubCore: withWindSway(vc({ roughness: 0.9 }), 0.08, 1.3),
+  shrubLeaves: leafCards(shrubTex, 0.08, 1.3),
+  bambooCulm: withWindSway(vc({ map: culmTex, roughness: 0.55 }), 1.1, 11),
+  bambooLeaves: leafCards(bambooTex, 1.1, 11),
   pot: withWindSway(vc({ roughness: 0.5 }), 0.1, 1.9),
-  trunk: vc({ roughness: 0.9 }),
-  canopy: withWindSway(
-    vc({ roughness: 0.85, emissive: N.leafDark, emissiveIntensity: 0.12 }),
-    0.35,
-    11.5,
-  ),
-  aerialRoot: withHangSway(vc({ roughness: 0.9 }), 0.9, 6.6, 5.5),
+  potWood: withWindSway(vc({ map: barkTex, roughness: 0.9 }), 0.1, 1.9),
+  potCore: withWindSway(vc({ roughness: 0.9 }), 0.1, 1.9),
+  potLeaves: leafCards(leafTex, 0.1, 1.9),
+  bark: vc({ map: barkTex, roughness: 0.95 }),
+  canopyCore: withWindSway(vc({ roughness: 0.9 }), 0.35, 11.5),
+  canopyLeaves: leafCards(leafTex, 0.35, 11.5),
+  aerialRoot: withHangSway(vc({ roughness: 0.9 }), 0.9),
   water: withSparkle(
     vc({ transparent: true, opacity: 0.82, roughness: 0.12, metalness: 0.1, depthWrite: false }),
   ),

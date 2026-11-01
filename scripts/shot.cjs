@@ -3,7 +3,7 @@
 // 2) node scripts/shot.cjs '<json>'   — ví dụ:
 //    node scripts/shot.cjs '{"out":"/tmp/a.png","x":4.6,"z":29.4,"yaw":0,"pitch":0.05,"dist":2.2,"hidePlayer":true}'
 // Tham số: out, x, z (vị trí người chơi), yaw/pitch/dist (camera bám người chơi; yaw 0 = nhìn về -z, phía chính
-// điện), hidePlayer, hideHud (mặc định true), night (giờ VN 21h), waitMs, width, height,
+// điện), hidePlayer, hideHud (mặc định true), night (giờ VN 21h), at (giờ ISO cố định), waitMs, width, height,
 // pose {"tieuan":"sit"} (ép tư thế; bật runtime.debug.freezeNpc để Tiểu An không tự đổi tư thế),
 // eval (chuỗi JS chạy trong trang sau khi vào chùa; nạp module bằng `await __imp("/src/...")`,
 // KHÔNG dùng import() trực tiếp vì Vite có thể phục vụ module đã sửa kèm ?t=... → khác instance).
@@ -30,6 +30,7 @@ const o = JSON.parse(process.argv[2] || "{}");
   });
   page.on("response", (r) => r.status() >= 400 && errors.push(`${r.status()} ${r.url()}`));
   if (o.night) await page.clock.setFixedTime(new Date("2026-11-01T14:00:00Z"));
+  else if (o.at) await page.clock.setFixedTime(new Date(o.at)); // ví dụ "2026-11-01T02:00:00Z" = 9h sáng VN
   await page.goto(o.url ?? "http://localhost:5174/", { waitUntil: "networkidle" });
   await page.click("text=Vào chùa");
   await page.waitForTimeout(1500);
@@ -66,7 +67,8 @@ const o = JSON.parse(process.argv[2] || "{}");
         .querySelectorAll(".hud,#hint,#companion,#toast,#joy,#leave")
         .forEach((e) => (e.style.display = "none")),
     );
-  await page.screenshot({ path: o.out ?? "shot.png" });
+  // page.clock cố định làm khung hình chậm ổn định → cho chụp lâu hơn.
+  await page.screenshot({ path: o.out ?? "shot.png", timeout: o.night || o.at ? 120000 : 30000 });
   await browser.close();
   console.log(errors.length ? "ERRORS:\n" + errors.join("\n") : "ok, no page errors");
 })();

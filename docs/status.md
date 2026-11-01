@@ -31,6 +31,11 @@ Sửa sau ghép: camera va chạm mái (tia từ đầu người chơi, mái đ�
 - Nhánh `claude/eager-noether-i0civq` = toàn bộ `pensive-darwin` (5 nhánh chibi + sửa lỗi); typecheck, lint, 76 test, build xanh (361 KB gzip); chạy thử bản build cảnh đêm không lỗi console.
 - Server: thêm `postinstall: prisma generate` (trước đó build hỏng khi cài mới vì thiếu Prisma client); sửa `start` → `dist/src/index.js`. Server vẫn là khung trống đến tuần 3.
 
+## Cây chân thực (01/11, yêu cầu của Phương)
+- Viết lại cây đa (gốc nhiều thân, cột rễ phụ có va chạm, rèm rễ, tán ô bằng thẻ lá), khóm tre (thân thon nhọn, cong rủ, cành lá dày), bụi tường và chậu cảnh — `web/src/scene/nature/trees.ts`; ảnh kiểm tra ngày + đêm không lỗi console.
+- Thiên nhiên 39,4k/40k tam giác — gần trần, thêm cây phải bớt chỗ khác. `scripts/shot.cjs` thêm tham số `at` (giờ cố định).
+- Cần Phương quyết: các phần còn lại (kiến trúc, nhân vật, cỏ) vẫn kiểu chibi — có chuyển cả cảnh sang chân thực không.
+
 ## Việc kế tiếp
 1. Tuần 2: QA trên điện thoại thật (Slow 4G + CPU 4x), font tự host trong `web/public/fonts`, tinh chỉnh avatar người chơi.
 2. Tuần 3: TempleRoom theo `docs/03-room-protocol.md`; chuyển luật công đức sang server.

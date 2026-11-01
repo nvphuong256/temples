@@ -10,6 +10,14 @@ export const HALL = { x: 0, z: -22, w: 26, d: 18, floorH: 1 } as const;
 export const BURNER = { x: 0, z: 6 } as const;
 export const POND = { x: -19, z: 12, r: 7 } as const;
 export const TREE = { x: 19, z: 12 } as const;
+/** Rễ phụ đã thành cột của cây đa (cắm đất), lệch so với gốc — dùng cho cả hình khối và va chạm. */
+export const TREE_PROPS: readonly { dx: number; dz: number }[] = [
+  { dx: 3.5, dz: 1.3 },
+  { dx: 1.2, dz: -3.6 },
+  { dx: 0.7, dz: 3.9 },
+  { dx: -3.5, dz: -1.4 },
+];
+const TREE_PROP_R = 0.75;
 export const BELL_TOWER = { x: 14, z: -4 } as const;
 export const SPAWN = { x: 0, z: 46 } as const;
 export const TIEU_AN = { x: 4.6, z: 27.5 } as const;
@@ -78,6 +86,7 @@ export function clampPos<T extends XZ>(p: T): T {
   pushOut(p, BURNER.x, BURNER.z, 1.6);
   pushOut(p, POND.x, POND.z, POND.r + 0.6);
   pushOut(p, TREE.x, TREE.z, 2);
+  for (const t of TREE_PROPS) pushOut(p, TREE.x + t.dx, TREE.z + t.dz, TREE_PROP_R);
   return p;
 }
 
@@ -105,6 +114,7 @@ const OBSTACLES = [
   { x: BURNER.x, z: BURNER.z, r: 1.6 },
   { x: POND.x, z: POND.z, r: POND.r + 0.6 },
   { x: TREE.x, z: TREE.z, r: 2 },
+  ...TREE_PROPS.map((t) => ({ x: TREE.x + t.dx, z: TREE.z + t.dz, r: TREE_PROP_R })),
 ] as const;
 
 /**

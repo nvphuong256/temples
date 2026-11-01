@@ -1,22 +1,28 @@
-// Cây đa chibi (x = 19, z = 12): thân mập xoắn có múi, rễ bạnh, tán là nhiều khối mây lá tròn
-// (withWindSway), rễ phụ buông lay theo gió. Không useFrame — mọi chuyển động trên GPU.
+// Cây đa cổ thụ (x = 19, z = 12) — bản chân thực (nature/trees.ts): gốc nhiều thân xoắn, rễ bạnh, cành vươn
+// ngang, cột rễ phụ (có va chạm, layout TREE_PROPS), rèm rễ buông lay theo gió, tán ô bằng thẻ lá.
+// Không useFrame — mọi chuyển động trên GPU.
 import { useMemo } from "react";
 import { TREE } from "./layout";
-import * as G from "./nature/geometries";
-import { NM } from "./nature/natureMaterials";
+import { NM, NM_DEPTH } from "./nature/natureMaterials";
+import { banyan } from "./nature/trees";
 
 const noRaycast = () => null;
 
 export function BanyanTree() {
-  const geo = useMemo(
-    () => ({ trunk: G.banyanTrunk(), canopy: G.banyanCanopy(), roots: G.aerialRoots() }),
-    [],
-  );
+  const t = useMemo(() => banyan(), []);
   return (
     <group name="nature-banyan" position={[TREE.x, 0, TREE.z]}>
-      <mesh geometry={geo.trunk} material={NM.trunk} castShadow receiveShadow raycast={noRaycast} />
-      <mesh geometry={geo.canopy} material={NM.canopy} castShadow raycast={noRaycast} />
-      <mesh geometry={geo.roots} material={NM.aerialRoot} raycast={noRaycast} />
+      <mesh geometry={t.wood} material={NM.bark} castShadow receiveShadow raycast={noRaycast} />
+      <mesh geometry={t.core} material={NM.canopyCore} castShadow raycast={noRaycast} />
+      <mesh
+        geometry={t.cards}
+        material={NM.canopyLeaves}
+        customDepthMaterial={NM_DEPTH.leaf}
+        castShadow
+        receiveShadow
+        raycast={noRaycast}
+      />
+      <mesh geometry={t.roots} material={NM.aerialRoot} castShadow raycast={noRaycast} />
     </group>
   );
 }
