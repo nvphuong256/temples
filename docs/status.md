@@ -15,7 +15,7 @@
 - Tiểu An bản chibi hoạt hình theo ảnh Phương gửi (áo cam, mắt to, chớp mắt, nhìn theo người chơi, ngồi thiền).
 - 20 test đơn vị (luật nghi lễ, bố cục/va chạm, lời thoại ≤ 90 ký tự, giờ VN).
 
-## Chibi hóa toàn cảnh (01/11, quyết định của Phương) — đang chạy 5 phiên song song
+## Chibi hóa toàn cảnh (01/11, quyết định của Phương) — đã ghép 5 phiên
 Kế hoạch, phong cách, quyền sở hữu file: `docs/06-chibi-plan.md`. Nền chung đã có ở commit b9cd680 (gió `env/wind.ts`, `fx/bus.ts`, palette theo hạng mục, khung gắn sẵn trong `Temple.tsx`, `scripts/shot.cjs`).
 | # | Hạng mục | Nhánh | Phiên |
 |---|---|---|---|
@@ -24,7 +24,8 @@ Kế hoạch, phong cách, quyền sở hữu file: `docs/06-chibi-plan.md`. N�
 | 3 | Thiên nhiên & sân vườn | `claude/chibi-3-thien-nhien` | session_011hoNTmXxPXZVpoUqgiQ4eY |
 | 4 | Trời, thời tiết & gió | `claude/chibi-4-thoi-tiet` | session_011hoNTkw3Bg5hqm8P65rP4H |
 | 5 | Hương khói, đèn lồng & hiệu ứng | `claude/chibi-5-huong-khoi` | session_011hoNTin3Nswy5bZSqkUjnT |
-Ghép vào `claude/pensive-darwin-w4fnhe` theo thứ tự 4 → 2 → 3 → 5 → 1, chạy đủ kiểm tra + chụp ảnh sau mỗi lần ghép.
+Đã ghép vào `claude/pensive-darwin-w4fnhe` theo thứ tự 4 → 2 → 3 → 5 → 1 (01/11): chỉ xung đột docs (danh sách vật thể) và chú thích `scripts/shot.cjs`; typecheck, lint, 76 test, build xanh (361 KB gzip); chạy thử ban ngày không lỗi console.
+Lỗi còn lại sau ghép: camera không đặt người chơi ở giữa (lệch góc phải dưới); mái hiên chính điện che camera khi đứng ở lư hương nhìn về điện; màn cổng: câu đối dọc chồng lên ô chọn tên. Chưa kiểm tra đêm, mưa phùn, mobile.
 
 ## Việc kế tiếp
 1. Tuần 2: QA trên điện thoại thật (Slow 4G + CPU 4x), font tự host trong `web/public/fonts`, tinh chỉnh avatar người chơi.
