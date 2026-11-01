@@ -1,0 +1,1 @@
+Nguyên mẫu Three.js thuần (01/11/2026): mở `chua-viet-online.html` trực tiếp trong trình duyệt (cần internet cho three.js từ cdnjs và font Google). Là tham chiếu cho cảnh, nghi lễ, âm thanh tổng hợp và joystick khi chuyển sang R3F. Không import vào app.

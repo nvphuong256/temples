@@ -1,0 +1,1 @@
+// lib/db — khung trống

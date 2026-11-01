@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment: { POSTGRES_USER: cvo, POSTGRES_PASSWORD: cvo, POSTGRES_DB: cvo }
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  server:
+    build: { context: ., dockerfile: server/Dockerfile }
+    env_file: .env
+    environment: { DATABASE_URL: "postgresql://cvo:cvo@postgres:5432/cvo?schema=public", REDIS_URL: "redis://redis:6379" }
+    ports: ["2567:2567"]
+    depends_on: [postgres, redis]
+volumes:
+  pgdata:

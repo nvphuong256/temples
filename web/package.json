@@ -1,0 +1,14 @@
+{
+  "name": "@cvo/web", "version": "0.0.1", "private": true, "type": "module",
+  "scripts": { "dev": "vite", "build": "vite build", "preview": "vite preview", "typecheck": "tsc --noEmit" },
+  "dependencies": {
+    "react": "19.3.1", "react-dom": "19.3.1",
+    "three": "0.187.0", "@react-three/fiber": "9.8.2", "@react-three/drei": "10.7.9",
+    "colyseus.js": "0.16.22", "zustand": "5.0.8", "zod": "4.6.7", "@cvo/shared": "*"
+  },
+  "devDependencies": {
+    "vite": "8.3.5", "@vitejs/plugin-react": "6.1.2", "typescript": "5.9.3",
+    "@types/react": "19.3.0", "@types/react-dom": "19.3.0", "@types/three": "0.187.0",
+    "tailwindcss": "4.3.3", "@tailwindcss/vite": "4.3.3"
+  }
+}

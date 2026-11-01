@@ -1,0 +1,98 @@
+// Chùa Việt 3D — 7 model (6 bảng dữ liệu + admins). Thiết kế: docs/02-data.md. Trạng thái phòng ở Redis, không ở đây.
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(uuid(7))
+  email         String    @unique
+  displayName   String    @map("display_name")
+  avatar        String    @default("tieu") // tieu | phattu
+  companionName String    @default("Tiểu An") @map("companion_name")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  lastSeenAt    DateTime? @map("last_seen_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  magicLinks MagicLink[]
+  merits     MeritLog[]
+
+  @@map("users")
+}
+
+model MagicLink {
+  id        String    @id @default(uuid(7))
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("magic_links")
+}
+
+enum MeritAction { incense bow mo beads bell }
+
+model MeritLog {
+  id        String      @id @default(uuid(7))
+  userId    String      @map("user_id")
+  action    MeritAction
+  count     Int         @default(1)
+  roomId    String?     @map("room_id")
+  day       DateTime    @db.Date
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room Room? @relation(fields: [roomId], references: [id])
+
+  @@index([userId, day])
+  @@index([day, action])
+  @@map("merit_logs")
+}
+
+model Room {
+  id        String  @id // tien-duong-1
+  name      String
+  capacity  Int     @default(100)
+  isOpen    Boolean @default(true) @map("is_open")
+  sortOrder Int     @default(0) @map("sort_order")
+
+  merits MeritLog[]
+
+  @@map("rooms")
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model CompanionLine {
+  id        String  @id @default(uuid(7))
+  state     String // greet guide bless meditate
+  text      String
+  condition Json?
+  weight    Int     @default(1)
+  enabled   Boolean @default(true)
+
+  @@index([state, enabled])
+  @@map("companion_lines")
+}
+
+model Admin {
+  id            String   @id @default(uuid(7))
+  email         String   @unique
+  totpSecretEnc String   @map("totp_secret_enc")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("admins")
+}

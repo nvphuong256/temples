@@ -1,0 +1,39 @@
+name: CI
+on:
+  pull_request:
+  push: { branches: [main] }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: cvo, POSTGRES_PASSWORD: cvo, POSTGRES_DB: cvo_test }
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+    env:
+      DATABASE_URL: postgresql://cvo:cvo@localhost:5432/cvo_test?schema=public
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm -w server run db:deploy
+      - run: npm run test:room
+      - run: npm run build
+  deploy-server:
+    needs: check
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # TODO tuần 6: build Docker image → ghcr.io → ssh VPS `docker compose pull && up -d`
+      - run: echo "deploy step configured in week 6"

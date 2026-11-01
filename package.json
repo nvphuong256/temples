@@ -1,0 +1,24 @@
+{
+  "name": "chua-viet-3d",
+  "private": true,
+  "version": "0.0.1",
+  "workspaces": ["shared", "web", "server"],
+  "scripts": {
+    "dev": "concurrently -n web,server \"npm -w web run dev\" \"npm -w server run dev\"",
+    "build": "npm -w shared run build && npm -w web run build && npm -w server run build",
+    "typecheck": "npm -ws run typecheck",
+    "lint": "eslint . && prettier --check .",
+    "test": "vitest run --dir tests/unit",
+    "test:room": "vitest run --dir tests/room",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "concurrently": "9.2.1",
+    "typescript": "5.9.3",
+    "eslint": "10.14.0",
+    "prettier": "3.9.10",
+    "vitest": "5.0.5",
+    "@playwright/test": "1.64.1"
+  },
+  "engines": { "node": ">=22" }
+}

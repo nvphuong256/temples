@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": ["Read", "Edit", "Write", "Glob", "Grep", "Bash(npm run *)", "Bash(npm -w *)", "Bash(npx vitest*)", "Bash(npx playwright test*)", "Bash(git status*)", "Bash(git diff*)", "Bash(git log*)", "Bash(git add *)", "Bash(git commit *)"],
+    "deny": ["Bash(npx prisma migrate reset*)", "Bash(rm -rf *)", "Bash(git push --force*)", "Read(.env)"]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"$CLAUDE_CODE_REMOTE\" = \"true\" ] && bash \"$CLAUDE_PROJECT_DIR/scripts/cloud-setup.sh\" || true",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  }
+}
