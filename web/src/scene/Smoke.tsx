@@ -1,60 +1,80 @@
-// Khói hương: 220 hạt Points, một useFrame (một instance duy nhất trong cảnh).
-import { useMemo, useRef } from "react";
+// Khói hương chibi: cuộn khói phồng mềm kiểu hoạt hình bốc lên từ đầu các nén hương, xoắn, trôi theo gió
+// (env.windX/windZ — gió mạnh nghiêng nhiều), loãng dần; dày lên ~7 s sau mỗi lần thắp hương (onFx "incense").
+// Một useFrame, pool 180 hạt cố định (Points + shader riêng, 0 tam giác).
+import { useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { SCENE_COLORS } from "@cvo/shared";
+import { CHIBI_FX as F } from "@cvo/shared";
+import { useUi } from "../state/store";
+import { env } from "./env/wind";
+import { onFx } from "./fx/bus";
+import { ASH_Y, MAX_STICKS, stickSlots } from "./fx/incense";
+import { makePuffMaterial, pointScale, pointsGeometry } from "./fx/pointMaterials";
+import { makeRng } from "./fx/pool";
+import { SMOKE_CAP, SmokeSim } from "./fx/smokeSim";
 import { BURNER } from "./layout";
-import { smokeTexture } from "./textures";
 
-const N = 220;
+const DAY = 1;
+const NIGHT = 0.42;
 
 export function Smoke() {
-  const ref = useRef<THREE.Points>(null);
-  const { geo, life, mat } = useMemo(() => {
-    const pos = new Float32Array(N * 3);
-    const life = new Float32Array(N);
-    for (let i = 0; i < N; i++) {
-      life[i] = Math.random();
-      pos[i * 3] = BURNER.x;
-      pos[i * 3 + 1] = 2.6;
-      pos[i * 3 + 2] = BURNER.z;
-    }
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(BURNER.x, 7, BURNER.z), 8);
-    const mat = new THREE.PointsMaterial({
-      map: smokeTexture(),
-      size: 1.6,
-      transparent: true,
-      depthWrite: false,
-      opacity: 0.5,
-      color: SCENE_COLORS.smoke,
-    });
-    return { geo, life, mat };
+  const { sim, geo, mat, tips, rnd } = useMemo(() => {
+    const geo = pointsGeometry(SMOKE_CAP, new THREE.Vector3(BURNER.x, ASH_Y + 5, BURNER.z), 12);
+    const mat = makePuffMaterial(F.smoke, F.smokeShade);
+    return {
+      sim: new SmokeSim(),
+      geo,
+      mat,
+      tips: stickSlots().map((s) => s.tip),
+      rnd: makeRng(1234),
+    };
   }, []);
 
-  useFrame((_, delta) => {
+  useEffect(
+    () =>
+      onFx((e) => {
+        if (e.kind === "incense") sim.boost = 1;
+      }),
+    [sim],
+  );
+
+  const look = useMemo(() => ({ x: 0, y: 0, z: 0, size: 0, alpha: 0 }), []);
+  const wind = useMemo(() => ({ x: 0, z: 0, strength: 0 }), []);
+
+  useFrame(({ size, camera, gl }, delta) => {
     const dt = Math.min(delta, 0.05);
-    const p = geo.attributes.position as THREE.BufferAttribute;
-    for (let i = 0; i < N; i++) {
-      const l = (life[i] ?? 0) + dt * 0.12;
-      if (l > 1) {
-        life[i] = 0;
-        p.setXYZ(
-          i,
-          BURNER.x + (Math.random() - 0.5) * 0.6,
-          2.4,
-          BURNER.z + (Math.random() - 0.5) * 0.6,
-        );
-        continue;
-      }
-      life[i] = l;
-      p.setY(i, 2.4 + l * 9);
-      p.setX(i, p.getX(i) + Math.sin(l * 8 + i) * dt * 0.3 + dt * 0.25);
-      p.setZ(i, p.getZ(i) + Math.cos(l * 6 + i) * dt * 0.2);
+    const { sticks, night } = useUi.getState();
+    const n = Math.min(Math.max(sticks, 0), MAX_STICKS);
+    // Nhiều nén → khói gom từ vài đầu nén ngẫu nhiên; không nén nào cháy thì chỉ còn khói lúc mới thắp.
+    const pick = () => tips[n > 0 ? Math.floor(rnd() * n) : 0]!;
+    sim.emitByRate(dt, n, pick, rnd);
+    wind.x = env.windX;
+    wind.z = env.windZ;
+    wind.strength = env.strength;
+    sim.step(dt, wind);
+
+    const pos = geo.attributes["position"] as THREE.BufferAttribute;
+    const sz = geo.attributes["aSize"] as THREE.BufferAttribute;
+    const al = geo.attributes["aAlpha"] as THREE.BufferAttribute;
+    const p = sim.pool;
+    let k = 0;
+    // Gói hạt sống lên đầu buffer (drawRange) để không vẽ hạt chết.
+    for (let i = 0; i < p.cap; i++) {
+      if (!p.alive(i)) continue;
+      sim.look(i, look);
+      pos.setXYZ(k, look.x, look.y, look.z);
+      sz.setX(k, look.size);
+      al.setX(k, look.alpha);
+      k++;
     }
-    p.needsUpdate = true;
+    geo.setDrawRange(0, k);
+    pos.needsUpdate = sz.needsUpdate = al.needsUpdate = true;
+
+    const u = mat.uniforms;
+    u["uScale"]!.value = pointScale(size.height * gl.getPixelRatio(), camera);
+    const b = u["uBright"]!;
+    b.value += ((night ? NIGHT : DAY) - b.value) * Math.min(1, dt * 2);
   });
 
-  return <points ref={ref} geometry={geo} material={mat} />;
+  return <points geometry={geo} material={mat} frustumCulled={false} renderOrder={2} />;
 }

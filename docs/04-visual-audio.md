@@ -16,4 +16,10 @@ Tôn nghiêm: không nhảy/chạy nhanh trong điện, không nhạc có nhịp
 
 ## Danh sách vật thể (cập nhật khi thêm)
 `web/src/scene/`: Ground (cỏ, sân gạch, lối vào — nhấp để đi), Columns (mọi cột + chân tảng, instanced), Roof, Signboard/Couplet, Gate, Hall (nền, bậc, tường, ban thờ, tượng Phật, mõ, chuông gia trì), Cushions (instanced), IncenseBurner (+ hương instanced ≤ 40), Smoke (220 hạt), LotusPond (instanced), BanyanTree, BellTower, Lanterns (3 đèn có nguồn sáng thật), Walls, Lighting (ngày/đêm), Avatar + AvatarAnimator (một useFrame cho mọi avatar), Player (di chuyển + camera), TieuAn.
+**Hương khói, đèn lồng & hiệu ứng nghi lễ (chibi, phiên 5)** — màu `CHIBI_FX` (`shared/src/palette/fx.ts`), vật liệu riêng (không dùng `materials.ts`), ~8,6k tam giác:
+- IncenseBurner: lư đồng chibi (bụng lathe, hai quai tròn, ba chân thú mập, đế đá bo, mặt tro); nén hương + đốm lửa InstancedMesh ≤ 40 theo store `sticks`, đốm lửa nhấp nháy trên GPU (`windUniforms.uTime`), quầng sáng rõ hơn ban đêm. Không useFrame.
+- Smoke: 180 cuộn khói (Points + shader "phồng" có khối sáng/tối), bốc lên, xoắn, trôi theo `env.windX/windZ` (càng cao càng bị cuốn; gió mạnh nghiêng nhiều, bay thấp hơn), loãng dần; dày lên 7 s sau mỗi `onFx("incense")`; tối lại ban đêm. Một useFrame. Logic thuần: `scene/fx/smokeSim.ts`.
+- Lanterns: 7 đèn tròn mập đỏ, chóp/đế vàng, tua rua; 3 InstancedMesh, nghiêng theo gió + lắc lệch pha (biên độ theo `env.strength`); đêm: emissive đỏ cam + quầng sáng + 3 PointLight. Một useFrame.
+- fx/RitualFx: lắng nghe `fx/bus.ts`, kế hoạch thuần ở `fx/effects.ts` (≤ 2 s, mờ dần): thắp hương → tàn lửa + gợn khói; lạy → vòng sáng vàng quanh bồ đoàn; mõ → gợn tròn nhỏ; trọn tràng → vòng 18 hạt sáng bay lên; chắp tay → đóa sen sáng; chuông → 3 vòng sóng âm vàng quay về người xem + gợn trên sân; có công đức → đốm vàng bay lên từ người chơi. Pool cố định: 12 vòng, 160 hạt, 2 sen; một useFrame.
+
 Tọa độ, va chạm, lái tránh vật cản: `web/src/scene/layout.ts` (hàm thuần, có test). Trong chính điện đi chậm 2,4 m/s (sân 5,5 m/s).
