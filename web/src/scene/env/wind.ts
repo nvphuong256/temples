@@ -21,6 +21,9 @@ export const env = {
   /** Mưa 0..1, sương 0..1 (phiên 4 điều khiển). */
   rain: 0,
   mist: 0,
+  /** Mây che 0..1, ánh ngày 0..1 (0 đêm, 1 trưa) — phiên 4 ghi, mọi phiên đọc (thêm 01/11). */
+  cloud: 0.2,
+  daylight: 1,
   time: 0,
 };
 

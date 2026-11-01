@@ -15,4 +15,14 @@ export const CHIBI_SKY = {
   cloud: "#FFFFFF",
   cloudShade: "#D8DEE8",
   rain: "#CFE3F2",
+  // Bình minh / hoàng hôn, đêm, ánh sáng (thêm 01/11).
+  goldenTop: "#8FB4E8",
+  goldenHorizon: "#FFB98A",
+  nightCloud: "#3A4672",
+  sunLight: "#FFF0C8",
+  goldenLight: "#FFC48A",
+  moonLight: "#9FB4E6",
+  hemiDay: "#FFF2D8",
+  hemiNight: "#5A6A9A",
+  hemiGround: "#4A3A2A",
 } as const;

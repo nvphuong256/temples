@@ -1,9 +1,13 @@
-// Âm thanh tổng hợp WebAudio — gió, chim, mõ, chuông gia trì, chuông lớn, hạt. Không dùng file tụng kinh.
+// Âm thanh tổng hợp WebAudio — gió (theo env.strength), mưa phùn, chim, mõ, chuông gia trì, chuông lớn, hạt.
+// Không dùng file tụng kinh, không nhạc có nhịp.
 // Port từ docs/prototype/chua-viet-online.html. AudioContext chỉ tạo sau thao tác người dùng (nút "Vào chùa").
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let birdTimer: ReturnType<typeof setInterval> | null = null;
 let birdsOn = true;
+let windGain: GainNode | null = null;
+let windLp: BiquadFilterNode | null = null;
+let rainGain: GainNode | null = null;
 
 export function initAudio() {
   if (ctx) {
@@ -19,26 +23,42 @@ export function initAudio() {
   master.gain.value = 0.8;
   master.connect(ctx.destination);
 
-  // Gió: tiếng ồn trắng qua lọc thông thấp, biên độ dao động chậm.
+  // Gió: tiếng ồn trắng qua lọc thông thấp; biên độ + tần số cắt theo sức gió (setWeatherAudio), LFO nhỏ cho "thở".
   const buf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   const src = ctx.createBufferSource();
   src.buffer = buf;
   src.loop = true;
-  const lp = ctx.createBiquadFilter();
-  lp.type = "lowpass";
-  lp.frequency.value = 420;
-  const wind = ctx.createGain();
-  wind.gain.value = 0.045;
-  src.connect(lp).connect(wind).connect(master);
+  windLp = ctx.createBiquadFilter();
+  windLp.type = "lowpass";
+  windLp.frequency.value = 420;
+  windGain = ctx.createGain();
+  windGain.gain.value = 0.045;
+  src.connect(windLp).connect(windGain).connect(master);
   src.start();
   const lfo = ctx.createOscillator();
   lfo.frequency.value = 0.11;
   const lfoGain = ctx.createGain();
-  lfoGain.gain.value = 0.03;
-  lfo.connect(lfoGain).connect(wind.gain);
+  lfoGain.gain.value = 0.012;
+  lfo.connect(lfoGain).connect(windGain.gain);
   lfo.start();
+
+  // Mưa phùn: cùng nguồn ồn (lệch pha) qua lọc thông cao + dải, rất nhỏ — tiếng rì rào mảnh, không nhịp.
+  const rsrc = ctx.createBufferSource();
+  rsrc.buffer = buf;
+  rsrc.loop = true;
+  rsrc.playbackRate.value = 0.93;
+  const hp = ctx.createBiquadFilter();
+  hp.type = "highpass";
+  hp.frequency.value = 1400;
+  const bp = ctx.createBiquadFilter();
+  bp.type = "lowpass";
+  bp.frequency.value = 6500;
+  rainGain = ctx.createGain();
+  rainGain.gain.value = 0;
+  rsrc.connect(hp).connect(bp).connect(rainGain).connect(master);
+  rsrc.start(0, 0.7);
 
   birdTimer = setInterval(() => {
     if (birdsOn && Math.random() < 0.5) bird();
@@ -50,12 +70,22 @@ export function setBirds(on: boolean) {
   birdsOn = on;
 }
 
+/** Gọi vài lần mỗi giây từ WeatherFx: wind = env.strength (đã có giật), rain = env.rain (0..1). */
+export function setWeatherAudio(wind: number, rain: number) {
+  if (!ctx || !windGain || !windLp || !rainGain) return;
+  const t = ctx.currentTime;
+  windGain.gain.setTargetAtTime(0.012 + wind * 0.075, t, 0.6);
+  windLp.frequency.setTargetAtTime(260 + wind * 620, t, 0.8);
+  rainGain.gain.setTargetAtTime(rain * 0.05, t, 1.2);
+}
+
 export function stopAudio() {
   if (birdTimer) clearInterval(birdTimer);
   birdTimer = null;
   void ctx?.close();
   ctx = null;
   master = null;
+  windGain = windLp = rainGain = null;
 }
 
 function bird() {

@@ -1,11 +1,13 @@
-// HUD trên cùng: tên, số người, công đức, hạt hôm nay, giờ VN, nút rời chùa.
+// HUD trên cùng: tên, số người, công đức, hạt hôm nay, giờ VN, thời tiết, nút rời chùa.
 import { BEADS_PER_ROUND, DEFAULT_ROOMS } from "@cvo/shared";
 import { cancelAction, closeBeads } from "../rituals/actions";
 import { sayLine } from "../companion/useCompanion";
+import { useWeatherUi } from "../lib/weatherStore";
 import { useUi } from "../state/store";
 
 export function Hud() {
   const { name, progress, clock, set } = useUi();
+  const weather = useWeatherUi((s) => s.label);
   const leave = () => {
     cancelAction();
     closeBeads();
@@ -40,6 +42,9 @@ export function Hud() {
         </b>
       </span>
       <span className="chip">{clock}</span>
+      <span className="chip weather" title="Thời tiết tại chùa (theo giờ Việt Nam)">
+        {weather}
+      </span>
       <button className="chip leave" onClick={leave}>
         Rời chùa
       </button>
