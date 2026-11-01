@@ -1,25 +1,44 @@
-// 8 chiếu lễ (bồ đoàn) trong chính điện — một InstancedMesh.
-import { useLayoutEffect, useRef } from "react";
+// 8 bồ đoàn trong chính điện: gối tròn phồng đỏ son, viền vàng, nút giữa — 3 InstancedMesh.
+import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { CUSHIONS, HALL } from "./layout";
 import { M } from "./materials";
+import { puffGeometry } from "./arch/AltarSet";
 
 export function Cushions() {
-  const ref = useRef<THREE.InstancedMesh>(null);
+  const geo = useMemo(
+    () => ({
+      body: puffGeometry(0.72, 0.24, 14),
+      trim: new THREE.TorusGeometry(0.71, 0.035, 3, 16).rotateX(Math.PI / 2).translate(0, 0.11, 0),
+      knot: new THREE.SphereGeometry(0.09, 8, 4).scale(1, 0.5, 1).translate(0, 0.235, 0),
+    }),
+    [],
+  );
+  const body = useRef<THREE.InstancedMesh>(null);
+  const trim = useRef<THREE.InstancedMesh>(null);
+  const knot = useRef<THREE.InstancedMesh>(null);
   useLayoutEffect(() => {
     const m = new THREE.Matrix4();
     CUSHIONS.forEach((c, i) => {
-      m.makeTranslation(c.x, HALL.floorH + 0.07, c.z);
-      ref.current?.setMatrixAt(i, m);
+      m.makeTranslation(c.x, HALL.floorH + 0.005, c.z);
+      for (const r of [body, trim, knot]) r.current?.setMatrixAt(i, m);
     });
-    if (ref.current) {
-      ref.current.instanceMatrix.needsUpdate = true;
-      ref.current.computeBoundingSphere();
+    for (const r of [body, trim, knot]) {
+      if (!r.current) continue;
+      r.current.instanceMatrix.needsUpdate = true;
+      r.current.computeBoundingSphere();
     }
   }, []);
   return (
-    <instancedMesh ref={ref} args={[undefined, M.son, CUSHIONS.length]} receiveShadow>
-      <cylinderGeometry args={[0.75, 0.75, 0.14, 16]} />
-    </instancedMesh>
+    <>
+      <instancedMesh
+        ref={body}
+        args={[geo.body, M.cushion, CUSHIONS.length]}
+        receiveShadow
+        castShadow
+      />
+      <instancedMesh ref={trim} args={[geo.trim, M.cushionTrim, CUSHIONS.length]} />
+      <instancedMesh ref={knot} args={[geo.knot, M.cushionTrim, CUSHIONS.length]} />
+    </>
   );
 }

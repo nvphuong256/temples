@@ -7,6 +7,7 @@
 // pose {"tieuan":"sit"} (ép tư thế; bật runtime.debug.freezeNpc để Tiểu An không tự đổi tư thế),
 // eval (chuỗi JS chạy trong trang sau khi vào chùa; nạp module bằng `await __imp("/src/...")`,
 // KHÔNG dùng import() trực tiếp vì Vite có thể phục vụ module đã sửa kèm ?t=... → khác instance).
+/* global window, performance, URL -- dùng trong page.evaluate (chạy trong trình duyệt) */
 const fs = require("fs");
 const { chromium } = require("playwright");
 // Cloud session: Chromium cài sẵn ở /opt/pw-browsers/chromium (khác phiên bản Playwright của dự án).
