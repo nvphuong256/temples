@@ -102,7 +102,7 @@ export const NM = {
   pot: withWindSway(vc({ roughness: 0.5 }), 0.1, 1.9),
   trunk: vc({ roughness: 0.9 }),
   canopy: withWindSway(
-    vc({ roughness: 0.85, emissive: N.leafDark, emissiveIntensity: 0.35 }),
+    vc({ roughness: 0.85, emissive: N.leafDark, emissiveIntensity: 0.12 }),
     0.35,
     11.5,
   ),

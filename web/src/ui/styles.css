@@ -156,19 +156,18 @@ button.chip {
   border-radius: 50%;
   background: rgba(240, 203, 122, 0.85);
 }
+/* Góc trái dưới (joystick chỉ hiện trên cảm ứng): không chạm cụm nút bên phải hay bong bóng Tiểu An. */
 #hint {
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+  left: max(16px, env(safe-area-inset-left, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   font-size: 11.5px;
   color: var(--ink-2);
   background: rgba(42, 24, 16, 0.7);
   padding: 6px 10px;
   border-radius: 8px;
   pointer-events: none;
-  max-width: calc(100vw - 32px);
-  text-align: center;
+  max-width: clamp(160px, calc(100vw - 420px), 420px);
 }
 /* Mobile: joystick trái, 3 nút lớn phải + "Thêm". */
 @media (pointer: coarse) {
@@ -248,6 +247,12 @@ button.chip {
 }
 #companion.show {
   opacity: 1;
+}
+/* Màn chưa đủ rộng cho bong bóng giữa + cụm nút bên phải: đẩy bong bóng lên trên cụm nút. */
+@media (max-width: 1040px) {
+  #companion {
+    bottom: calc(196px + env(safe-area-inset-bottom, 0px));
+  }
 }
 @media (pointer: coarse) {
   #toast {
