@@ -7,7 +7,7 @@
 // pose {"tieuan":"sit"} (ép tư thế; bật runtime.debug.freezeNpc để Tiểu An không tự đổi tư thế),
 // eval (chuỗi JS chạy trong trang sau khi vào chùa; nạp module bằng `await __imp("/src/...")`,
 // KHÔNG dùng import() trực tiếp vì Vite có thể phục vụ module đã sửa kèm ?t=... → khác instance).
-/* global window, performance, URL */
+/* global window, performance, URL -- dùng trong page.evaluate (chạy trong trình duyệt) */
 const fs = require("fs");
 const { chromium } = require("playwright");
 // Cloud session: Chromium cài sẵn ở /opt/pw-browsers/chromium (khác phiên bản Playwright của dự án).
@@ -29,12 +29,8 @@ const o = JSON.parse(process.argv[2] || "{}");
       errors.push(m.text());
   });
   page.on("response", (r) => r.status() >= 400 && errors.push(`${r.status()} ${r.url()}`));
-  if (o.hour !== undefined)
-    await page.clock.setFixedTime(new Date(Date.UTC(2026, 10, 1) + (o.hour - 7) * 3600_000));
-  else if (o.night) await page.clock.setFixedTime(new Date("2026-11-01T14:00:00Z"));
-  const url = new URL(o.url ?? "http://localhost:5174/");
-  if (o.weather) url.searchParams.set("weather", o.weather);
-  await page.goto(url.href, { waitUntil: "networkidle" });
+  if (o.night) await page.clock.setFixedTime(new Date("2026-11-01T14:00:00Z"));
+  await page.goto(o.url ?? "http://localhost:5174/", { waitUntil: "networkidle" });
   await page.click("text=Vào chùa");
   await page.waitForTimeout(1500);
   // Vite thêm ?t=... vào module đã sửa: import đúng URL trang đang dùng để có cùng instance module.
@@ -70,8 +66,7 @@ const o = JSON.parse(process.argv[2] || "{}");
         .querySelectorAll(".hud,#hint,#companion,#toast,#joy,#leave")
         .forEach((e) => (e.style.display = "none")),
     );
-  // page.clock (hour/night) làm SwiftShader chậm hơn — cho ảnh chụp thêm thời gian.
-  await page.screenshot({ path: o.out ?? "shot.png", timeout: 120_000 });
+  await page.screenshot({ path: o.out ?? "shot.png" });
   await browser.close();
   console.log(errors.length ? "ERRORS:\n" + errors.join("\n") : "ok, no page errors");
 })();
