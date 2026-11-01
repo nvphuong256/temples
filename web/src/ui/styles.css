@@ -369,9 +369,12 @@ select {
   font: 500 13px var(--display);
   color: var(--gold);
   letter-spacing: 0.08em;
-  writing-mode: vertical-rl;
-  height: 120px;
   opacity: 0.85;
+}
+/* Mỗi vế dọc riêng, hai vế đặt cạnh nhau (writing-mode trên cả khối flex làm hai vế chồng lên nhau). */
+.couplet span {
+  writing-mode: vertical-rl;
+  max-height: 160px;
 }
 .fine {
   font-size: 11px;

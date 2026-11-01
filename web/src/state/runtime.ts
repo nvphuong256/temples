@@ -32,6 +32,9 @@ export const input = {
 
 export const cam = { yaw: 0, pitch: 0.42, dist: 14 };
 
+/** Vật cản tầm nhìn camera (mái chùa): camera kéo vào trước điểm chạm để không chui dưới mái hiên. */
+export const camBlockers = new Set<Object3D>();
+
 export const player = {
   group: null as Group | null,
   walkTo: null as XZ | null,

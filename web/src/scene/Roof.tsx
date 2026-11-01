@@ -1,6 +1,8 @@
 // Mái đao cong chibi (ngói mũi hài): mặt ngói cong lõm, góc cong vút, viền mái tròn, bờ nóc mập,
 // đầu đao xoắn men xanh ngọc, lưỡng long chầu nguyệt (ornate). Hình học: arch/roofGeometry.ts.
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import type { Group } from "three";
+import { camBlockers } from "../state/runtime";
 import { buildRoof } from "./arch/roofGeometry";
 import { M } from "./materials";
 
@@ -27,9 +29,18 @@ export function Roof({ w, d, h, y, curl, skirt, ornate, over, skipDaoX, position
     [w, d, h, curl, skirt, ornate, over, skipDaoX],
   );
   useEffect(() => () => Object.values(parts).forEach((g) => g.dispose()), [parts]);
+  const body = useRef<Group>(null);
+  useEffect(() => {
+    const g = body.current;
+    if (!g) return;
+    camBlockers.add(g);
+    return () => {
+      camBlockers.delete(g);
+    };
+  }, []);
   return (
     <group position={position}>
-      <group position-y={y}>
+      <group ref={body} position-y={y}>
         <mesh geometry={parts.tiles} material={M.tile} castShadow receiveShadow />
         <mesh geometry={parts.under} material={M.roofUnder} />
         <mesh geometry={parts.edge} material={M.roofEdge} castShadow />

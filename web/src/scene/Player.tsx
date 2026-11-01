@@ -3,15 +3,19 @@
 import { useEffect, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { PLAYER_ID, avatars, cam, input, player } from "../state/runtime";
+import { PLAYER_ID, avatars, cam, camBlockers, input, player } from "../state/runtime";
 import { useUi } from "../state/store";
 import { ChibiAvatar } from "./chibi/ChibiAvatar";
 import { SPAWN, clampPos, groundHeight, isInHall, steerAround } from "./layout";
 
 const SPEED_YARD = 5.5;
 const SPEED_HALL = 2.4;
+const CAM_MIN_DIST = 2.5;
+const CAM_HIT_MARGIN = 0.6;
 const tmp = new THREE.Vector3();
 const look = new THREE.Vector3();
+const dir = new THREE.Vector3();
+const ray = new THREE.Raycaster();
 
 function useCameraControls() {
   const gl = useThree((s) => s.gl);
@@ -166,12 +170,25 @@ export function Player() {
     g.position.y += (gy - g.position.y) * Math.min(1, dt * 12);
 
     // Camera: quỹ đạo quanh người chơi; ngoài cổng thì xoay chậm.
+    // Tia từ đầu người chơi tới camera chạm mái → kéo camera vào trước điểm chạm.
     if (!inTemple) cam.yaw += dt * 0.05;
-    const cx = g.position.x + Math.sin(cam.yaw) * Math.cos(cam.pitch) * cam.dist;
-    const cz = g.position.z + Math.cos(cam.yaw) * Math.cos(cam.pitch) * cam.dist;
-    const cy = g.position.y + 1.6 + Math.sin(cam.pitch) * cam.dist;
-    camera.position.lerp(tmp.set(cx, Math.max(cy, 1.2), cz), inTemple ? 0.15 : 0.02);
-    camera.lookAt(look.set(g.position.x, g.position.y + 1.6, g.position.z));
+    look.set(g.position.x, g.position.y + 1.6, g.position.z);
+    dir.set(
+      Math.sin(cam.yaw) * Math.cos(cam.pitch),
+      Math.sin(cam.pitch),
+      Math.cos(cam.yaw) * Math.cos(cam.pitch),
+    );
+    let dist = cam.dist;
+    if (inTemple && camBlockers.size) {
+      ray.set(look, dir);
+      ray.far = cam.dist;
+      const hit = ray.intersectObjects([...camBlockers], true)[0];
+      if (hit) dist = Math.max(CAM_MIN_DIST, hit.distance - CAM_HIT_MARGIN);
+    }
+    tmp.copy(dir).multiplyScalar(dist).add(look);
+    tmp.y = Math.max(tmp.y, 1.2);
+    camera.position.lerp(tmp, inTemple ? 0.15 : 0.02);
+    camera.lookAt(look);
   });
 
   return (
